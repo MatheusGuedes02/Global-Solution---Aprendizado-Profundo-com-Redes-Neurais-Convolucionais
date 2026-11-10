@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classificador de Ocorrências - SSP-SP</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        button { width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; transition: background 0.3s; margin-top: 10px; }
+        button:hover { background-color: #2980b9; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 5px; text-align: center; display: none; }
+        .result.show { display: block; }
+        .result h3 { margin: 0 0 10px 0; font-size: 24px; }
+        .roubo { background-color: #fdeaea; color: #e74c3c; border: 1px solid #fadbd8; }
+        .furto { background-color: #eaebfd; color: #3498db; border: 1px solid #d4e6f1; }
+        .note { font-size: 12px; color: #7f8c8d; margin-top: 10px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Classificador de Ocorrências</h2>
+    <form id="crimeForm">
+        <div class="form-group">
+            <label for="periodo">Período do Dia:</label>
+            <select id="periodo" name="DESCR_PERIODO" required>
+                <option value="A noite">A noite</option>
+                <option value="De madrugada">De madrugada</option>
+                <option value="A tarde">A tarde</option>
+                <option value="Pela manhã">Pela manhã</option>
+                <option value="Em hora incerta">Em hora incerta</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="local">Tipo de Local:</label>
+            <select id="local" name="DESCR_TIPOLOCAL" required>
+                <option value="Via Pública">Via Pública</option>
+                <option value="Residência">Residência</option>
+                <option value="Comércio e Serviços">Comércio e Serviços</option>
+                <option value="Estacionamento/Garagem">Estacionamento/Garagem</option>
+                <option value="Condomínio Residencial">Condomínio Residencial</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="veiculo">Tipo de Veículo:</label>
+            <select id="veiculo" name="DESCR_TIPO_VEICULO" required>
+                <option value="Automovel">Automóvel</option>
+                <option value="Motociclo">Motociclo</option>
+                <option value="Caminhonete">Caminhonete</option>
+                <option value="Camioneta">Camioneta</option>
+                <option value="Caminhao">Caminhão</option>
+            </select>
+        </div>
+        <button type="submit">Classificar Ocorrência</button>
+    </form>
+
+    <div id="resultBox" class="result">
+        <h3 id="classePredita"></h3>
+        <p id="probabilidades"></p>
+        <p class="note">Nota: O modelo atribui essa probabilidade ao tipo de ocorrência baseado nestas características, e não calcula o risco de um crime acontecer no futuro.</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('crimeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const data = {
+            DESCR_PERIODO: document.getElementById('periodo').value,
+            DESCR_TIPOLOCAL: document.getElementById('local').value,
+            DESCR_TIPO_VEICULO: document.getElementById('veiculo').value
+        };
+
+        // Envia os dados para o nosso backend Flask em Python
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        const resultBox = document.getElementById('resultBox');
+        
+        // Atualiza a interface
+        document.getElementById('classePredita').innerText = result.classe;
+        document.getElementById('probabilidades').innerText = `Probabilidades: Roubo ${result.prob_roubo}% | Furto ${result.prob_furto}%`;
+        
+        // Altera a cor consoante o resultado
+        resultBox.className = 'result show ' + (result.classe === 'ROUBO' ? 'roubo' : 'furto');
+    });
+</script>
+
+</body>
+</html>
