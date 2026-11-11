@@ -1,8 +1,11 @@
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 from flask import Flask, render_template, request, jsonify
 import tensorflow as tf
 import joblib
 import pandas as pd
-import os
 
 app = Flask(__name__)
 
