@@ -7,7 +7,7 @@
 * Matheus Guedes Grigorio - RM: \[568086]
 * Vinicius Fernandes Silva Souza - RM: \[567977]
 
-
+Link para o site hospedado: https://global-solution-aprendizado-profundo-com-redes-production.up.railway.app/
 
 ## Objetivo do Projeto
 
